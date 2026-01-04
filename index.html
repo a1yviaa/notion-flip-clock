@@ -8,11 +8,10 @@
 
 <style>
   :root {
-    --bg: transparent;
-    --tile: #6fa9c8;
-    --tile-dark: #5b96b6;
+    --tile: #7fb6d8;
+    --tile-dark: #69a3c7;
     --text: #ffffff;
-    --divider: rgba(255,255,255,0.25);
+    --divider: rgba(255,255,255,0.3);
   }
 
   body {
@@ -26,15 +25,19 @@
   }
 
   .clock-wrap {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  .clock {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .unit {
     display: flex;
-    gap: 8px;
+    gap: 6px;
   }
 
   .digit {
@@ -45,10 +48,9 @@
     border-radius: 12px;
     overflow: hidden;
     perspective: 700px;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
   }
 
-  /* Flip divider */
   .digit::after {
     content: "";
     position: absolute;
@@ -82,19 +84,30 @@
     100% { transform: rotateX(0deg); }
   }
 
+  .colon {
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--text);
+    padding: 0 2px;
+  }
+
   .ampm {
     font-size: 14px;
     letter-spacing: 2px;
     color: rgba(255,255,255,0.9);
-    margin-top: 2px;
+    margin-left: 6px;
+    padding-bottom: 6px;
   }
 </style>
 </head>
 
 <body>
   <div class="clock-wrap">
-    <div class="unit" id="hours"></div>
-    <div class="unit" id="minutes"></div>
+    <div class="clock">
+      <div class="unit" id="hours"></div>
+      <div class="colon">:</div>
+      <div class="unit" id="minutes"></div>
+    </div>
     <div class="ampm" id="ampm">AM</div>
   </div>
 
