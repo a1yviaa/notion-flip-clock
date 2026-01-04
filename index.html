@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0f1f28;
+    --tile: #2B495B;
+    --tile-dark: #1e3644;
+    --text: #dceff7;
+    --divider: rgba(255,255,255,0.12);
+    --glass: rgba(255,255,255,0.12);
+  }
+
+  body {
+    margin: 0;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .clock-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg);
+    padding: 18px 22px;
+    border-radius: 18px;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+  }
+
+  .clock {
+    display: flex;
+    gap: 14px;
+  }
+
+  .unit {
+    display: flex;
+    gap: 6px;
+  }
+
+  .digit {
+    position: relative;
+    width: 52px;
+    height: 78px;
+    background: linear-gradient(to bottom, var(--tile), var(--tile-dark));
+    border-radius: 12px;
+    overflow: hidden;
+    perspective: 700px;
+    box-shadow:
+      inset 0 -3px 0 rgba(0,0,0,0.45),
+      inset 0 3px 0 rgba(255,255,255,0.1);
+  }
+
+  /* Glass highlight */
+  .digit::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.28),
+      rgba(255,255,255,0.05),
+      transparent
+    );
+    z-index: 1;
+  }
+
+  /* Flip divider */
+  .digit::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--divider);
+    z-index: 2;
+  }
+
+  .digit span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--text);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.45);
+    backface-visibility: hidden;
+    z-index: 0;
+  }
+
+  .digit.flip span {
+    animation: flip 0.55s cubic-bezier(.4,.0,.2,1);
+  }
+
+  @keyframes flip {
+    0%   { transform: rotateX(0deg); }
+    50%  { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0deg); }
+  }
+
+  .colon {
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    padding: 0 2px;
+  }
+
+  /* AM / PM */
+  .ampm {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: rgba(220,239,247,0.75);
+    margin-left: 6px;
+    align-self: flex-end;
+    padding-bottom: 6px;
+  }
+</style>
+</head>
+
+<body>
+  <div class="clock-wrap">
+    <div class="clock">
+      <div class="unit" id="hours"></div>
+      <div class="colon">:</div>
+      <div class="unit" id="minutes"></div>
+    </div>
+    <div class="ampm" id="ampm">AM</div>
+  </div>
+
+<script>
+  let previousTime = "";
+
+  function createDigits(container, value) {
+    container.innerHTML = '';
+    value.split('').forEach(num => {
+      const digit = document.createElement('div');
+      digit.className = 'digit';
+      digit.innerHTML = `<span>${num}</span>`;
+      container.appendChild(digit);
+    });
+  }
+
+  function updateClock() {
+    const now = new Date();
+
+    let hours24 = now.getHours();
+    const isPM = hours24 >= 12;
+
+    let hours = hours24 % 12 || 12;
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    const timeString = String(hours).padStart(2, '0') + minutes;
+
+    if (timeString !== previousTime) {
+      const hoursEl = document.getElementById('hours');
+      const minutesEl = document.getElementById('minutes');
+
+      createDigits(hoursEl, String(hours).padStart(2, '0'));
+      createDigits(minutesEl, minutes);
+
+      document.querySelectorAll('.digit').forEach(d => {
+        d.classList.add('flip');
+        setTimeout(() => d.classList.remove('flip'), 550);
+      });
+
+      document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
+
+      previousTime = timeString;
+    }
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
