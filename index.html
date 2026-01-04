@@ -7,7 +7,7 @@
 
 <style>
   :root {
-    --blue: #4f8ea8; /* matches image blue */
+    --blue: #4f8ea8;
     --white: #ffffff;
   }
 
@@ -50,7 +50,8 @@
     font-size: 96px;
     font-weight: 700;
     line-height: 1;
-    letter-spacing: 2px;
+    letter-spacing: 0px; /* tighter numbers */
+    font-variant-numeric: tabular-nums;
   }
 
   .label {
@@ -71,14 +72,12 @@
 
 <body>
   <div class="widget">
-    <!-- LEFT CARD -->
     <div class="card left">
       <div class="divider"></div>
       <div class="main-text" id="time">06</div>
       <div class="label" id="ampm">PM</div>
     </div>
 
-    <!-- RIGHT CARD -->
     <div class="card right">
       <div class="divider"></div>
       <div class="main-text" id="date">57</div>
@@ -87,29 +86,37 @@
   </div>
 
 <script>
+  const timeZone = "America/Chicago";
+
   function updateClock() {
     const now = new Date();
 
-    let hours = now.getHours();
-    const minutes = now.getMinutes();
-    const ampm = hours >= 12 ? "PM" : "AM";
+    const timeFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    });
 
-    hours = hours % 12 || 12;
+    const parts = timeFormatter.formatToParts(now);
+
+    const hour = parts.find(p => p.type === "hour").value;
+    const minute = parts.find(p => p.type === "minute").value;
+    const ampm = parts.find(p => p.type === "dayPeriod").value;
 
     document.getElementById("time").textContent =
-      String(hours).padStart(2, "0");
+      hour.padStart(2, "0");
 
-    document.getElementById("date").textContent =
-      String(minutes).padStart(2, "0");
-
+    document.getElementById("date").textContent = minute;
     document.getElementById("ampm").textContent = ampm;
 
-    const days = [
-      "SUNDAY","MONDAY","TUESDAY",
-      "WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"
-    ];
+    const dayFormatter = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      weekday: "long"
+    });
+
     document.getElementById("day").textContent =
-      days[now.getDay()];
+      dayFormatter.format(now).toUpperCase();
   }
 
   updateClock();
