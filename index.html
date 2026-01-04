@@ -2,151 +2,114 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notion Clock Widget</title>
 
 <style>
   :root {
-    --tile: #7fb6d8;
-    --tile-dark: #69a3c7;
-    --text: #ffffff;
-    --divider: rgba(255,255,255,0.3);
+    --blue: #4f8ea8; /* matches image blue */
+    --white: #ffffff;
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: "Helvetica Neue", Arial, sans-serif;
   }
 
   body {
     margin: 0;
     background: transparent;
+  }
+
+  .widget {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: 'Orbitron', monospace;
+    gap: 14px;
   }
 
-  .clock-wrap {
-    display: inline-flex;
-    align-items: flex-end;
-    gap: 10px;
-  }
-
-  .clock {
-    display: flex;
-    gap: 10px;
-  }
-
-  .unit {
-    display: flex;
-    gap: 6px;
-  }
-
-  .digit {
+  .card {
+    background: var(--blue);
+    color: var(--white);
+    width: 180px;
+    height: 200px;
+    border-radius: 18px;
     position: relative;
-    width: 56px;
-    height: 80px;
-    background: linear-gradient(to bottom, var(--tile), var(--tile-dark));
-    border-radius: 12px;
-    overflow: hidden;
-    perspective: 700px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .digit::after {
-    content: "";
+  .divider {
     position: absolute;
     top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--divider);
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.35);
   }
 
-  .digit span {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 42px;
-    font-weight: 900;
-    color: var(--text);
-    text-shadow: 0 2px 0 rgba(0,0,0,0.25);
-    backface-visibility: hidden;
-  }
-
-  .digit.flip span {
-    animation: flip 0.55s ease-in-out;
-  }
-
-  @keyframes flip {
-    0%   { transform: rotateX(0deg); }
-    50%  { transform: rotateX(-90deg); }
-    100% { transform: rotateX(0deg); }
-  }
-
-  .colon {
-    font-size: 42px;
-    font-weight: 900;
-    color: var(--text);
-    padding: 0 2px;
-  }
-
-  .ampm {
-    font-size: 14px;
+  .main-text {
+    font-size: 96px;
+    font-weight: 700;
+    line-height: 1;
     letter-spacing: 2px;
-    color: rgba(255,255,255,0.9);
-    margin-left: 6px;
-    padding-bottom: 6px;
+  }
+
+  .label {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .right .label {
+    left: auto;
+    right: 14px;
   }
 </style>
 </head>
 
 <body>
-  <div class="clock-wrap">
-    <div class="clock">
-      <div class="unit" id="hours"></div>
-      <div class="colon">:</div>
-      <div class="unit" id="minutes"></div>
+  <div class="widget">
+    <!-- LEFT CARD -->
+    <div class="card left">
+      <div class="divider"></div>
+      <div class="main-text" id="time">06</div>
+      <div class="label" id="ampm">PM</div>
     </div>
-    <div class="ampm" id="ampm">AM</div>
+
+    <!-- RIGHT CARD -->
+    <div class="card right">
+      <div class="divider"></div>
+      <div class="main-text" id="date">57</div>
+      <div class="label" id="day">THURSDAY</div>
+    </div>
   </div>
 
 <script>
-  let previousTime = "";
-
-  function createDigits(container, value) {
-    container.innerHTML = '';
-    value.split('').forEach(num => {
-      const digit = document.createElement('div');
-      digit.className = 'digit';
-      digit.innerHTML = `<span>${num}</span>`;
-      container.appendChild(digit);
-    });
-  }
-
   function updateClock() {
     const now = new Date();
 
-    let hours24 = now.getHours();
-    const isPM = hours24 >= 12;
+    let hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? "PM" : "AM";
 
-    let hours = hours24 % 12 || 12;
-    const minutes = String(now.getMinutes()).padStart(2, '0');
+    hours = hours % 12 || 12;
 
-    const timeString = String(hours).padStart(2, '0') + minutes;
+    document.getElementById("time").textContent =
+      String(hours).padStart(2, "0");
 
-    if (timeString !== previousTime) {
-      createDigits(document.getElementById('hours'), String(hours).padStart(2, '0'));
-      createDigits(document.getElementById('minutes'), minutes);
+    document.getElementById("date").textContent =
+      String(minutes).padStart(2, "0");
 
-      document.querySelectorAll('.digit').forEach(d => {
-        d.classList.add('flip');
-        setTimeout(() => d.classList.remove('flip'), 550);
-      });
+    document.getElementById("ampm").textContent = ampm;
 
-      document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
-      previousTime = timeString;
-    }
+    const days = [
+      "SUNDAY","MONDAY","TUESDAY",
+      "WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"
+    ];
+    document.getElementById("day").textContent =
+      days[now.getDay()];
   }
 
   updateClock();
@@ -154,4 +117,3 @@
 </script>
 </body>
 </html>
-
